@@ -1,0 +1,25 @@
+{
+  "schema": "ubos.terraforma-local-core-lineage.v1",
+  "source_host": "upstream",
+  "source_repository": "terraforma-core (private upstream repository)",
+  "source_commit": "96ab60724d4d777e5c32dec6228b14befcb6a093",
+  "inherited_files": [
+    {
+      "upstream_path": "src/cell.rs",
+      "sha256": "79afcc39ecc51b09549a48e5e2658c11bfd3861ab5813aa344f7db6bf220ea1c",
+      "local_path": "src/inherited/cell.rs"
+    },
+    {
+      "upstream_path": "src/monolith.rs",
+      "sha256": "7c5dbd963e67c9c0504347e18a39ae1e5b9152d1c9ddff6c897e3ddc1d369048",
+      "local_path": "src/inherited/monolith.rs"
+    },
+    {
+      "upstream_path": "src/governor.rs",
+      "sha256": "68d46cb1962f53ceb40366659573e984d7b9a0265f2be25d0845d6108c59fea6",
+      "local_path": "src/inherited/governor.rs"
+    }
+  ],
+  "selection": "Exact Cell, Monolith and Governor source. New strict local journal adapter; not a legacy WAL importer or promotion of existing daemon state.",
+  "distribution": "Local qualification only; public distribution rights and release remain unreviewed."
+}

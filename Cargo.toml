@@ -1,0 +1,23 @@
+[package]
+name = "terraforma-local-core"
+version = "0.3.0"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/janus-ubos-republic/terraforma-memory"
+rust-version = "1.89"
+publish = false
+description = "Terraforma Memory: local, tamper-evident memory for AI coding assistants, on inherited Terraforma state and rings"
+
+[dependencies]
+serde = { version = "=1.0.229", features = ["derive"] }
+serde_json = "=1.0.151"
+sha2 = "=0.10.9"
+httparse = "=1.10.1"
+getrandom = "=0.4.3"
+
+[profile.release]
+opt-level = "s"
+debug = 0
+incremental = false
+strip = "debuginfo"
+codegen-units = 1

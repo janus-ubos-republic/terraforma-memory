@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="workspace-token" content="__SESSION_TOKEN__">
+  <title>Terraforma · Local workspace</title>
+  <link rel="stylesheet" href="/app.css"><script src="/app.js" defer></script>
+</head>
+<body>
+<header><a class="brand" href="/">terraforma<span>LOCAL WORKSPACE</span></a><span id="connection" class="pill">Connecting…</span></header>
+<main>
+  <section class="intro"><p class="eyebrow">A SMALL PLACE FOR YOUR WORK</p><h1>Keep it here.<br>Find it when you need it.</h1><p>Save a note or a small text file. Search its words, open the source, and keep a backup you own.</p></section>
+  <div id="notice" role="status" aria-live="polite" hidden></div>
+  <div class="workspace">
+    <section class="collection" aria-label="Find your documents">
+      <form id="search-form"><label for="query">Find in your saved documents</label><div class="search-row"><input id="query" name="query" type="search" maxlength="512" placeholder="Try: project 7" required><button type="submit">Search</button></div><p class="hint">Matches saved words and titles. No AI account needed.</p></form>
+      <section id="results" hidden aria-label="Search results"><div class="section-heading"><h2 id="result-heading">Results</h2><button id="clear-search" class="text-button">Clear search</button></div><p id="result-summary" class="hint"></p><div id="hits"></div><details><summary>Search details</summary><pre id="query-receipt"></pre></details></section>
+      <section id="empty"><div class="empty-mark">↗</div><h2>Start with something small.</h2><p>Try a sample project note, or choose a text file. You will review it before saving.</p><button id="sample">Try a sample</button><button id="choose-file" class="secondary">Choose a text file</button></section>
+      <section id="library"><div class="section-heading"><h2>Saved documents <span id="count">0</span></h2><button id="refresh" class="text-button">Refresh</button></div><div id="documents"></div></section>
+      <div class="actions"><button id="new-note" class="secondary">Write a note</button><button id="add-file" class="secondary">Add a text file</button></div>
+    </section>
+    <aside aria-label="Document workspace">
+      <section id="welcome" class="panel"><p class="eyebrow">YOUR SOURCE, IN VIEW</p><h2>A place to check the details.</h2><p>Open a result to read the exact text you saved. Changes become searchable as soon as you save them.</p><div class="quiet-note">Files elsewhere on your computer are not watched. Choose the file again when you want to update its saved copy.</div></section>
+      <section id="source" class="panel" hidden><p class="eyebrow">SAVED SOURCE</p><h2 id="source-title"></h2><p id="source-meta" class="hint"></p><pre id="source-text" class="document-text"></pre><button id="edit" class="secondary">Edit saved copy</button><details><summary>Source details</summary><pre id="source-proof"></pre></details></section>
+      <section id="editor" class="panel" hidden><p class="eyebrow" id="editor-kind">NEW DOCUMENT</p><h2>Review and save.</h2><form id="document-form"><label for="title">Title</label><input id="title" required maxlength="256"><label for="text">Document text</label><textarea id="text" rows="12" required spellcheck="false"></textarea><p id="byte-count" class="hint">0 / 16,384 bytes</p><div class="actions"><button type="submit">Save document</button><button id="cancel-edit" type="button" class="secondary">Cancel</button><button id="replace-file" type="button" class="text-button">Choose replacement text</button></div></form><div id="conflict" hidden><h3>Review the current saved version</h3><pre id="latest-text" class="document-text"></pre><button id="accept-current" class="secondary">Keep my draft as the next revision</button></div></section>
+    </aside>
+  </div>
+  <section class="care"><details><summary>Back up and recover</summary><p>A checkpoint preserves the current set of documents before your next edits. A downloaded backup includes your saved documents and their full history; keep it somewhere private.</p><div class="actions"><button id="checkpoint" class="secondary">Create checkpoint</button><label for="ring">Earlier checkpoint</label><select id="ring" aria-label="Earlier checkpoint"></select><button id="rollback" class="secondary">Restore checkpoint</button><button id="backup" class="secondary">Download backup</button></div><p class="hint">Restoring a downloaded backup into a separate workspace is available through the terminal in this rehearsal.</p></details></section>
+</main>
+<footer><span id="footer-status">Small local rehearsal · UTF-8 text up to 16 KiB per document</span><button id="stop" class="text-button">Stop workspace</button></footer>
+<input id="file" type="file" accept=".txt,.md,.csv,.json,.rs,.py,.js,.ts,.html,.css,.toml,.yaml,.yml,.log" hidden>
+</body></html>
