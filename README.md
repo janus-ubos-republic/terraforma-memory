@@ -18,6 +18,22 @@ Memory is one place both assistants read and write.
 
 ## Install (macOS arm64, Linux x86-64)
 
+One command, run inside your project folder:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/janus-ubos-republic/terraforma-memory/main/lander.sh | sh
+```
+
+The Lander surveys the machine (system, chip, tools, which assistants are present),
+downloads the right archive, checks it against checksums pinned in the script,
+installs to `~/.terraforma/terraforma-local-core` and proves the program answers.
+It uses no sudo and starts no service. In a terminal it then asks whether to connect
+Claude Code and Codex; it changes their configuration only if you say yes, through
+their own `mcp add` commands. To look first: download `lander.sh`, read it, and run
+`sh lander.sh --dry-run`. Options: `--connect claude,codex|all|none`, `--project NAME`.
+
+### Manual install
+
 Download the archive for your platform from the [releases page](https://github.com/janus-ubos-republic/terraforma-memory/releases), then:
 
 ```sh
