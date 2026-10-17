@@ -8,8 +8,10 @@ qualification and internal-format notes for contributors.
 Local, private, tamper-evident memory for AI coding assistants. Claude Code and
 Codex connect over MCP (stdio) and get five tools: `remember`, `recall`,
 `read_memory`, `recent` and `memory_status`. Every save is a hash-chained
-journal entry; updating a memory keeps its earlier versions. Nothing leaves the
-machine. Several assistants can share one memory: the estate is locked only for
+journal entry; updating a memory keeps its earlier versions. The journal is stored
+locally, and this MCP process makes no network connections. Tool results go to the
+connected assistant; a cloud assistant may send retrieved memory text to its model
+provider. Several assistants can share one memory: the estate is locked only for
 the duration of a single call, and a busy estate is retried for up to 5 s.
 
 ```sh
@@ -88,7 +90,7 @@ checksums, and terminal `install.sh`, `uninstall.sh`, `update.sh` and
 cross-compiled binary (needs glibc 2.30+, e.g. Ubuntu 20.04, Debian 11):
 
 ```sh
-cargo zigbuild --release --target x86_64-unknown-linux-gnu
+cargo zigbuild --release --target x86_64-unknown-linux-gnu.2.30
 python3 scripts/package_linux.py \
   --binary target/x86_64-unknown-linux-gnu/release/terraforma-local-core \
   --output-parent ./deliveries
@@ -99,8 +101,8 @@ Extract and install. With no argument the prefix is
 directory whose final component is `terraforma-local-core`:
 
 ```sh
-tar -xzf ./deliveries/terraforma-local-core-0.3.0-macos-arm64.tar.gz
-sh ./terraforma-local-core-0.3.0-macos-arm64/install.sh
+tar -xzf ./deliveries/terraforma-local-core-0.3.1-macos-arm64.tar.gz
+sh ./terraforma-local-core-0.3.1-macos-arm64/install.sh
 ```
 
 The installer verifies every packaged payload before creating the destination,
@@ -125,8 +127,8 @@ mkdir -p ./deliveries
 python3 scripts/package_linux.py \
   --binary ./terraforma-local-core \
   --output-parent ./deliveries
-tar -xzf ./deliveries/terraforma-local-core-0.2.2-linux-x86-64.tar.gz
-sh ./terraforma-local-core-0.2.2-linux-x86-64/install.sh \
+tar -xzf ./deliveries/terraforma-local-core-0.3.1-linux-x86-64.tar.gz
+sh ./terraforma-local-core-0.3.1-linux-x86-64/install.sh \
   "$HOME/Applications/terraforma-local-core"
 ```
 

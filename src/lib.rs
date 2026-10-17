@@ -398,6 +398,9 @@ fn sync_dir(path: &Path) -> Result<()> {
 fn new_estate(path: &Path, bytes: &[u8]) -> Result<()> {
     replay(bytes)?;
     create_dir(path)?; // Refuse any existing destination, even an empty one.
+    new_estate_files(path, bytes)
+}
+fn new_estate_files(path: &Path, bytes: &[u8]) -> Result<()> {
     create_file(&path.join(".lock"), b"")?;
     create_file(&path.join("journal.jsonl"), bytes)?;
     sync_dir(path)?;
@@ -407,12 +410,33 @@ fn new_estate(path: &Path, bytes: &[u8]) -> Result<()> {
             .unwrap_or(Path::new(".")),
     )
 }
-pub fn init(path: &Path, estate_id: String) -> Result<()> {
+fn genesis_bytes(estate_id: String) -> Result<Vec<u8>> {
     let mut world = World::empty();
     let event = Event::Genesis { estate_id };
     world.apply(&event)?;
     let (bytes, _) = encode(&world, event)?;
-    new_estate(path, &bytes)
+    Ok(bytes)
+}
+pub fn init(path: &Path, estate_id: String) -> Result<()> {
+    new_estate(path, &genesis_bytes(estate_id)?)
+}
+/// MCP first-use support for an already mounted, empty directory. Explicit init
+/// and restore keep refusing existing destinations. Exclusive file creation
+/// preserves any existing lock or journal, including incomplete estates.
+pub(crate) fn init_empty_directory(path: &Path, estate_id: String) -> Result<()> {
+    let bytes = genesis_bytes(estate_id)?;
+    if !fs::symlink_metadata(path)
+        .map_err(|e| e.to_string())?
+        .file_type()
+        .is_dir()
+        || fs::read_dir(path)
+            .map_err(|e| e.to_string())?
+            .next()
+            .is_some()
+    {
+        return Err("first-use destination must be a real, empty directory".into());
+    }
+    new_estate_files(path, &bytes)
 }
 
 pub struct Estate {

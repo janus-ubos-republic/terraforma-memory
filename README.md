@@ -1,12 +1,12 @@
 # Terraforma Memory
 
-**One private memory for Claude Code and Codex.** Your assistants save decisions,
-conventions and hard-won fixes, and find them again next session, or from the
-other assistant. Everything stays on your machine, in a journal you own.
+**One private memory for Claude Code and Codex.** Your assistants can save
+decisions, conventions and hard-won fixes, and retrieve them when they use the tools.
+Your memory journal is stored locally on your machine.
 
 - **Shared across assistants.** Claude Code and Codex can use the same memory at
   the same time; each call holds the lock only while it runs.
-- **Local and private.** A single binary with no runtime dependencies. The MCP
+- **Local storage.** A single binary with no runtime dependencies. The MCP
   server talks over stdio and makes no network connections. No account, no telemetry.
 - **Tamper-evident history.** Every save is a hash-chained journal entry.
   Updating a memory keeps its earlier versions.
@@ -15,6 +15,11 @@ other assistant. Everything stays on your machine, in a journal you own.
 
 Built-in assistant memory is usually tied to one tool and one project. Terraforma
 Memory is one place both assistants read and write.
+
+**Assistant data flow.** The MCP server returns memory text to the connected
+assistant. If that assistant uses a cloud model, retrieved text can be sent to its
+provider under that assistant's settings and policies. Local storage does not mean
+all model processing stays on your device.
 
 ## Install (macOS arm64, Linux x86-64)
 
@@ -37,9 +42,9 @@ their own `mcp add` commands. To look first: download `lander.sh`, read it, and 
 Download the archive for your platform from the [releases page](https://github.com/janus-ubos-republic/terraforma-memory/releases), then:
 
 ```sh
-curl -fsSLO https://github.com/janus-ubos-republic/terraforma-memory/releases/download/v0.3.0/terraforma-local-core-0.3.0-macos-arm64.tar.gz   # or ...-linux-x86-64.tar.gz
-tar -xzf terraforma-local-core-0.3.0-*.tar.gz
-sh terraforma-local-core-0.3.0-*/install.sh
+curl -fsSLO https://github.com/janus-ubos-republic/terraforma-memory/releases/download/v0.3.1/terraforma-local-core-0.3.1-macos-arm64.tar.gz   # or ...-linux-x86-64.tar.gz
+tar -xzf terraforma-local-core-0.3.1-*.tar.gz
+sh terraforma-local-core-0.3.1-*/install.sh
 ```
 
 The installer verifies the checksum of every file before installing to
@@ -50,7 +55,9 @@ Linux needs glibc 2.30 or newer (Ubuntu 20.04+, Debian 11+).
 
 ## Connect
 
-Use one memory directory per project. It is created on first use, private to your user.
+Use one memory directory per project. Missing directories are created on first use
+with private permissions on Unix. An existing empty directory also works; its
+permissions are left unchanged. Unrelated files and partial estates are refused.
 
 ```sh
 # Claude Code (run inside your project)

@@ -18,14 +18,32 @@ const INSTRUCTIONS: &str = "Local project memory. Call `recall` with specific wo
 before non-trivial work to find earlier decisions, conventions and known pitfalls. \
 Call `remember` when a decision is made, a convention is agreed, a mistake is \
 understood or a hard-won fact is found; reuse the same title to update a memory. \
-Everything stays on this machine in a tamper-evident journal.";
+Memories are stored locally in a tamper-evident journal. Tool results go to the \
+connected assistant; cloud assistants may send retrieved text to their model provider.";
 
 /// Create the estate on first use so a fresh install works without a separate
 /// init step. Missing parent directories are created private to the user, so
 /// the documented `~/.terraforma/memory/<project>` works on a clean machine.
 pub fn ensure_estate(path: &Path) -> Result<()> {
-    if path.exists() {
-        return Ok(());
+    let name = path
+        .file_name()
+        .and_then(|n| n.to_str())
+        .map(slug)
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| "memory".into());
+    match std::fs::symlink_metadata(path) {
+        Ok(meta) => {
+            if !meta.file_type().is_dir() {
+                return Err("estate must be a real directory".into());
+            }
+            if std::fs::symlink_metadata(path.join("journal.jsonl")).is_ok() {
+                // serve() still validates the journal and lock before startup.
+                return Ok(());
+            }
+            return crate::init_empty_directory(path, name);
+        }
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
+        Err(e) => return Err(e.to_string()),
     }
     if let Some(parent) = path.parent().filter(|p| !p.as_os_str().is_empty()) {
         let mut builder = std::fs::DirBuilder::new();
@@ -39,12 +57,6 @@ pub fn ensure_estate(path: &Path) -> Result<()> {
             .create(parent)
             .map_err(|e| format!("cannot create {}: {e}", parent.display()))?;
     }
-    let name = path
-        .file_name()
-        .and_then(|n| n.to_str())
-        .map(slug)
-        .filter(|s| !s.is_empty())
-        .unwrap_or_else(|| "memory".into());
     init(path, name)
 }
 
@@ -272,7 +284,7 @@ pub fn call(path: &Path, name: &str, args: &Map<String, Value>) -> Result<String
             let estate = open(path)?;
             let world = estate.world()?;
             Ok(format!(
-                "Memory `{}`: {} of {MAX_RECORDS} memories, {} journal events.\nWorld sha256: {}\nJournal head: {}\nStored locally at {}; nothing is sent over the network.",
+                "Memory `{}`: {} of {MAX_RECORDS} memories, {} journal events.\nWorld sha256: {}\nJournal head: {}\nStored locally at {}. This MCP server uses stdio and makes no network connections; the connected assistant receives tool results and may send retrieved text to its model provider.",
                 world.estate_id,
                 world.record_count(),
                 world.sequence,
@@ -499,6 +511,47 @@ mod tests {
         let (_, err) = tool(&estate, "remember", json!({"title":"t","text":"first use"}));
         assert!(!err);
         std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn first_use_initializes_existing_empty_directory_once() {
+        let root = temp("empty-volume");
+        std::fs::create_dir(&root).unwrap();
+        ensure_estate(&root).unwrap();
+        let estate = Estate::open(&root).unwrap();
+        assert_eq!(estate.world().unwrap().sequence, 1);
+        drop(estate);
+        let before = std::fs::read(root.join("journal.jsonl")).unwrap();
+        ensure_estate(&root).unwrap();
+        assert_eq!(std::fs::read(root.join("journal.jsonl")).unwrap(), before);
+        std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn first_use_refuses_unrelated_or_incomplete_existing_directory() {
+        for name in ["notes.txt", ".lock"] {
+            let root = temp("not-empty");
+            std::fs::create_dir(&root).unwrap();
+            std::fs::write(root.join(name), b"keep these bytes").unwrap();
+            assert!(ensure_estate(&root).is_err());
+            assert_eq!(std::fs::read(root.join(name)).unwrap(), b"keep these bytes");
+            assert!(!root.join("journal.jsonl").exists());
+            assert_eq!(std::fs::read_dir(&root).unwrap().count(), 1);
+            std::fs::remove_dir_all(root).unwrap();
+        }
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn first_use_refuses_symlink_to_empty_directory() {
+        let target = temp("empty-link-target");
+        let link = temp("empty-link");
+        std::fs::create_dir(&target).unwrap();
+        std::os::unix::fs::symlink(&target, &link).unwrap();
+        assert!(ensure_estate(&link).is_err());
+        assert_eq!(std::fs::read_dir(&target).unwrap().count(), 0);
+        std::fs::remove_file(link).unwrap();
+        std::fs::remove_dir(target).unwrap();
     }
 
     #[test]
