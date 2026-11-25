@@ -43,9 +43,9 @@ their own `mcp add` commands. To look first: download `lander.sh`, read it, and 
 Download the archive for your platform from the [releases page](https://github.com/janus-ubos-republic/terraforma-memory/releases), then:
 
 ```sh
-curl -fsSLO https://github.com/janus-ubos-republic/terraforma-memory/releases/download/v0.4.0/terraforma-local-core-0.4.0-macos-arm64.tar.gz   # or ...-linux-x86-64.tar.gz
-tar -xzf terraforma-local-core-0.4.0-*.tar.gz
-sh terraforma-local-core-0.4.0-*/install.sh
+curl -fsSLO https://github.com/janus-ubos-republic/terraforma-memory/releases/download/v0.4.1/terraforma-local-core-0.4.1-macos-arm64.tar.gz   # or ...-linux-x86-64.tar.gz
+tar -xzf terraforma-local-core-0.4.1-*.tar.gz
+sh terraforma-local-core-0.4.1-*/install.sh
 ```
 
 The installer verifies the checksum of every file before installing to
@@ -88,7 +88,7 @@ Point both at the same directory to share one memory.
 Optional session briefing (Markdown of the newest memories):
 `terraforma-local-core briefing ~/.terraforma/memory/my-project 10`
 
-## New in 0.4.0: the Gate (one memory, several assistants or machines)
+## New in 0.4.1: the Gate (one memory, several assistants or machines)
 
 By default each assistant on your machine starts its own stdio server. If you want
 several assistants, or several machines, on **one** memory, each with **its own

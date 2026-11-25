@@ -25,6 +25,27 @@ connected assistant; cloud assistants may send retrieved text to their model pro
 /// init step. Missing parent directories are created private to the user, so
 /// the documented `~/.terraforma/memory/<project>` works on a clean machine.
 pub fn ensure_estate(path: &Path) -> Result<()> {
+    match ensure_estate_once(path) {
+        Ok(()) => Ok(()),
+        // Another assistant may be creating the same new memory at this moment:
+        // wait for it to become usable instead of failing, then use it. A memory
+        // that is genuinely broken still fails with the original error.
+        Err(first) => {
+            let started = Instant::now();
+            loop {
+                match Estate::open(path) {
+                    Ok(_) => return Ok(()),
+                    Err(_) if started.elapsed() < LOCK_WAIT => {
+                        std::thread::sleep(Duration::from_millis(25))
+                    }
+                    Err(_) => return Err(first),
+                }
+            }
+        }
+    }
+}
+
+fn ensure_estate_once(path: &Path) -> Result<()> {
     let name = path
         .file_name()
         .and_then(|n| n.to_str())
@@ -64,7 +85,11 @@ fn open(path: &Path) -> Result<Estate> {
     let started = Instant::now();
     loop {
         match Estate::open(path) {
-            Err(e) if e.starts_with("estate busy") && started.elapsed() < LOCK_WAIT => {
+            // A busy lock, or files that another assistant is still creating.
+            Err(e)
+                if (e.starts_with("estate busy") || e.contains("No such file"))
+                    && started.elapsed() < LOCK_WAIT =>
+            {
                 std::thread::sleep(Duration::from_millis(25))
             }
             other => return other,
@@ -654,5 +679,32 @@ mod tests {
         let old = r#"{"type":"Put","id":"a","title":"t","text":"x"}"#;
         let event: Event = serde_json::from_str(old).unwrap();
         assert_eq!(serde_json::to_string(&event).unwrap(), old);
+    }
+    #[test]
+    fn simultaneous_first_start_of_a_new_memory_succeeds_for_every_assistant() {
+        // Claude Code and Codex may start against the same new memory at once.
+        for round in 0..20 {
+            let dir = std::env::temp_dir().join(format!(
+                "tfm-race-{}-{}-{}",
+                std::process::id(),
+                round,
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos()
+            ));
+            let path = dir.join("memory");
+            let handles: Vec<_> = (0..4)
+                .map(|_| {
+                    let path = path.clone();
+                    std::thread::spawn(move || ensure_estate(&path))
+                })
+                .collect();
+            for h in handles {
+                assert_eq!(h.join().unwrap(), Ok(()), "round {round}");
+            }
+            assert!(Estate::open(&path).is_ok());
+            let _ = std::fs::remove_dir_all(&dir);
+        }
     }
 }

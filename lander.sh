@@ -4,10 +4,10 @@
 # No sudo, no service, no network access except downloading the release from GitHub.
 set -eu
 
-VERSION=0.4.0
+VERSION=0.4.1
 RELEASE_URL="https://github.com/janus-ubos-republic/terraforma-memory/releases/download/v$VERSION"
-SHA_MACOS_ARM64=db02956a39e02abb64f4cbd26b5d25658f4cfb5461cf9b0a42be2e2ca79ab789
-SHA_LINUX_X86_64=9138cd32e20a22e9935a2e1e389af711bac56a414c6dde1dcd0789d4f6b572ed
+SHA_MACOS_ARM64=6fedd087181a4faf468d5748b1ca452a2e0a019d41207e5ccac703e27b74f06e
+SHA_LINUX_X86_64=339d59484da1fecb60ad91c8362fd232fdfd1f3e71fe6a57a7c8c9604535e4c0
 MIN_GLIBC_MINOR=30
 
 say() { printf '%s\n' "$*"; }
