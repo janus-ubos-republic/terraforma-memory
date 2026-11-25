@@ -34,6 +34,26 @@ ssh -N -L 8765:127.0.0.1:8765 your-server
 `python3 scripts/qualify_w1.py <binary> --ssh your-server --remote-bin <path-on-server>`
 runs the whole check this way and restores the server's backup on your own machine.
 
+## Connect an assistant
+
+Replace `TOKEN` with the token `principal-add` printed for that assistant, and the URL with
+your own (127.0.0.1 here, or the end of your tunnel).
+
+```sh
+# Claude Code (run inside your project)
+claude mcp add --transport http terraforma-gate http://127.0.0.1:8765/mcp \
+  --header "Authorization: Bearer TOKEN"
+
+# Codex: keep the token in an environment variable, not in the config file
+export TERRAFORMA_GATE_TOKEN=TOKEN
+codex mcp add terraforma-gate --url http://127.0.0.1:8765/mcp \
+  --bearer-token-env-var TERRAFORMA_GATE_TOKEN
+```
+
+Checked: Claude Code's own health check (`claude mcp list`) connects to a running Gate and
+the Gate records `initialize` and `tools/list` from it. Not checked: the Codex command above
+is taken from `codex mcp add --help` and has not been run end to end. Tell us if it fails.
+
 ## What it does
 
 - One bearer token per principal. Only the SHA-256 of a token is stored.
