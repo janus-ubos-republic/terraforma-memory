@@ -8,6 +8,7 @@ Your memory journal is stored locally on your machine.
   the same time; each call holds the lock only while it runs.
 - **Local storage.** A single binary with no runtime dependencies. The MCP
   server talks over stdio and makes no network connections. No account, no telemetry.
+  (The optional Gate, described below, is a separate command you start yourself.)
 - **Tamper-evident history.** Every save is a hash-chained journal entry.
   Updating a memory keeps its earlier versions.
 - **Yours to keep.** Export, back up and restore with the same binary. Uninstall
@@ -42,9 +43,9 @@ their own `mcp add` commands. To look first: download `lander.sh`, read it, and 
 Download the archive for your platform from the [releases page](https://github.com/janus-ubos-republic/terraforma-memory/releases), then:
 
 ```sh
-curl -fsSLO https://github.com/janus-ubos-republic/terraforma-memory/releases/download/v0.3.1/terraforma-local-core-0.3.1-macos-arm64.tar.gz   # or ...-linux-x86-64.tar.gz
-tar -xzf terraforma-local-core-0.3.1-*.tar.gz
-sh terraforma-local-core-0.3.1-*/install.sh
+curl -fsSLO https://github.com/janus-ubos-republic/terraforma-memory/releases/download/v0.4.0/terraforma-local-core-0.4.0-macos-arm64.tar.gz   # or ...-linux-x86-64.tar.gz
+tar -xzf terraforma-local-core-0.4.0-*.tar.gz
+sh terraforma-local-core-0.4.0-*/install.sh
 ```
 
 The installer verifies the checksum of every file before installing to
@@ -87,6 +88,27 @@ Point both at the same directory to share one memory.
 Optional session briefing (Markdown of the newest memories):
 `terraforma-local-core briefing ~/.terraforma/memory/my-project 10`
 
+## New in 0.4.0: the Gate (one memory, several assistants or machines)
+
+By default each assistant on your machine starts its own stdio server. If you want
+several assistants, or several machines, on **one** memory, each with **its own
+identity** and the power to **revoke one without touching the rest**, run the Gate:
+
+```sh
+BIN=~/.terraforma/terraforma-local-core/bin/terraforma-local-core
+GATE=~/.terraforma/gate/my-project
+$BIN principal-add $GATE assistant-a write     # prints a token once
+$BIN principal-add $GATE reviewer read         # a read-only principal
+$BIN gate-serve ~/.terraforma/memory/my-project $GATE 8765
+$BIN principal-revoke $GATE assistant-a        # refused from its very next call
+```
+
+The Gate listens on loopback only and has no TLS of its own: to use it from another
+machine, tunnel it (for example `ssh -N -L 8765:127.0.0.1:8765 your-server`). It keeps
+an audit log of who called what, never the memory text. What it does not do, and how
+to check it yourself, is in [docs/GATE.md](docs/GATE.md). It is new: please tell us
+what breaks.
+
 ## Honest limits
 
 - Search matches words, not meaning: a reworded question may miss a memory
@@ -98,8 +120,8 @@ Optional session briefing (Markdown of the newest memories):
 ## Support the project
 
 Terraforma Memory is free and open source, and every feature works without paying.
-If it saves you time, **Founding supporter licenses** open soon: €19 one-time for the
-first 100 supporters, then €29. They fund development by an independent builder.
+The most useful thing you can do is use it for a week and tell us what broke or
+what you wish it did: open an issue on this repository.
 
 ## License
 

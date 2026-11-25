@@ -177,7 +177,8 @@ class DefaultPrefixTests(unittest.TestCase):
             self.assertEqual(removed.returncode, 0, removed.stderr); self.assertFalse(prefix.exists())
 
     def test_version_defaults_to_crate_version(self):
-        self.assertEqual(package_macos.cargo_version(), "0.3.0")
+        crate = next(l for l in (Path(__file__).resolve().parent.parent / "Cargo.toml").read_text().splitlines() if l.startswith("version = "))
+        self.assertEqual(package_macos.cargo_version(), crate.split('"')[1])
 
 
 if __name__ == "__main__":

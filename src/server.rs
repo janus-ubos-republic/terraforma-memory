@@ -27,11 +27,11 @@ struct State {
     host: String,
     stop: AtomicBool,
 }
-struct Request {
-    method: String,
-    path: String,
-    headers: BTreeMap<String, String>,
-    body: Vec<u8>,
+pub(crate) struct Request {
+    pub(crate) method: String,
+    pub(crate) path: String,
+    pub(crate) headers: BTreeMap<String, String>,
+    pub(crate) body: Vec<u8>,
 }
 
 #[derive(Deserialize)]
@@ -62,7 +62,7 @@ enum Api {
     Stop {},
 }
 
-fn parse(stream: &mut TcpStream) -> Result<Request> {
+pub(crate) fn parse(stream: &mut TcpStream) -> Result<Request> {
     let deadline = Instant::now() + Duration::from_secs(3);
     let mut bytes = Vec::new();
     let mut chunk = [0u8; 4096];

@@ -101,8 +101,8 @@ Extract and install. With no argument the prefix is
 directory whose final component is `terraforma-local-core`:
 
 ```sh
-tar -xzf ./deliveries/terraforma-local-core-0.3.1-macos-arm64.tar.gz
-sh ./terraforma-local-core-0.3.1-macos-arm64/install.sh
+tar -xzf ./deliveries/terraforma-local-core-0.4.0-macos-arm64.tar.gz
+sh ./terraforma-local-core-0.4.0-macos-arm64/install.sh
 ```
 
 The installer verifies every packaged payload before creating the destination,
@@ -127,8 +127,8 @@ mkdir -p ./deliveries
 python3 scripts/package_linux.py \
   --binary ./terraforma-local-core \
   --output-parent ./deliveries
-tar -xzf ./deliveries/terraforma-local-core-0.3.1-linux-x86-64.tar.gz
-sh ./terraforma-local-core-0.3.1-linux-x86-64/install.sh \
+tar -xzf ./deliveries/terraforma-local-core-0.4.0-linux-x86-64.tar.gz
+sh ./terraforma-local-core-0.4.0-linux-x86-64/install.sh \
   "$HOME/Applications/terraforma-local-core"
 ```
 

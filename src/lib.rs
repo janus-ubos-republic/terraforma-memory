@@ -5,6 +5,7 @@ pub type Coordinate = u64;
 pub mod cell;
 #[path = "inherited/governor.rs"]
 pub mod governor;
+pub mod gate;
 pub mod mcp;
 #[path = "inherited/monolith.rs"]
 pub mod monolith;

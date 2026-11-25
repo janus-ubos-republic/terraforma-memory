@@ -182,7 +182,7 @@ dependencies = [
 
 [[package]]
 name = "terraforma-local-core"
-version = "0.3.1"
+version = "0.4.0"
 dependencies = [
  "getrandom",
  "httparse",

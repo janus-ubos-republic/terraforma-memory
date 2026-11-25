@@ -8,7 +8,7 @@ fn run() -> Result<serde_json::Value> {
             "source_lineage":serde_json::from_str::<serde_json::Value>(include_str!("../lineage.json")).unwrap()}));
     }
     if args.len() < 2 {
-        return Err("usage: terraforma-local-core <init|status|put|get|query|serve|mcp|briefing|expand|collapse|export|restore|backup|restore-backup|verify-desk-replay> <estate> [arguments]; version".into());
+        return Err("usage: terraforma-local-core <init|status|put|get|query|serve|mcp|briefing|expand|collapse|export|restore|backup|restore-backup|verify-desk-replay|gate-serve|principal-add|principal-revoke|principal-list> <estate-or-gate-dir> [arguments]; version".into());
     }
     let path = Path::new(&args[1]);
     match (args[0].as_str(), args.len()) {
@@ -16,6 +16,14 @@ fn run() -> Result<serde_json::Value> {
             terraforma_local_core::init(path, args[2].clone())?;
             Estate::open(path)?.world()?.status()
         }
+        ("principal-add", 4) => terraforma_local_core::gate::add(path, &args[2], &args[3]),
+        ("principal-revoke", 3) => terraforma_local_core::gate::revoke(path, &args[2]),
+        ("principal-list", 2) => terraforma_local_core::gate::list(path),
+        ("gate-serve", 4) => terraforma_local_core::gate::serve(
+            path,
+            Path::new(&args[2]),
+            args[3].parse().map_err(|_| "invalid port")?,
+        ),
         ("verify-desk-replay", 2) => terraforma_local_core::replay::verify(path),
         ("restore", 3) => {
             let dest = Path::new(&args[2]);
